@@ -28,15 +28,10 @@ services:
     command: cp -r /app/build/. /frontend_static/
     volumes:
       - static_volume:/frontend_static
-    depends_on:
-      - backend
-
 
   gateway:
     image: bobby322/kittygram_gateway
     env_file: .env
-    depends_on:
-      - frontend
     volumes:
       - static_volume:/staticfiles/
       - media:/app/media
