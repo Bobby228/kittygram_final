@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 from distutils.util import strtobool
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,7 +13,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'key')
 
 DEBUG = os.getenv("DEBUG", 'False').lower() != 'false'
-
 
 ALLOWED_HOSTS = os.getenv('HOSTS',default='').split()
 
