@@ -1,90 +1,142 @@
-# Kittygram - социальная сеть для размещение фотографий домашних животных.
+# Kittygram - блог для размещение фотографий кошариков. 
+ 
+### Описание проекта: 
+ 
+Проект Kittygram даёт возможность пользователям поделиться и похвастаться фотографиями своих любимымих котиков. Зарегистрированные пользователи могут создавать, просматривать, редактировать и удалять свои записи. 
+ 
+ 
+### Установка проекта: 
+ 
+ - Клонироуйте репозиторий:
+ 
+    ```bash
+    git clone git@github.com:Bobby228/kittygram_final.git
+    ```
+    ```bash
+    cd kittygram
+    ```
+ - Создайте файл .env и заполните его своими данными:
 
-## Описание проекта
-Проект, где пользователи могут регистрироваться, загружать фотографии кошек с описанием их достижений, а также любоваться на других котов.
+    ```bash
+   # Секреты DB
+    POSTGRES_USER=[имя_пользователя_базы]
+    POSTGRES_PASSWORD=[пароль_к_базе]
+    POSTGRES_DB= [имя_базы_данных]
+    DB_PORT=[порт_соединения_к_базе]
+    DB_HOST=[db]
 
-## Технологии
-•	Python 3.9
-•	Django==3.2.3
-•	djangorestframework==3.12.4
-•	nginx
-•	gunicorn==20.1.0
-• djoser==2.1.0
+   # Секреты джанги
+   SECRET_KEY='SECRET_KEY'
+   DEBUG=False
+   ALLOWED_HOSTS='ваш домен'
+    ``` 
 
-## Автор
-[@Bobby228](https://github.com/Bobby228)
+### Создание Docker-образов
 
-### Как запустить проект:
+1.  Замените username на ваш логин на DockerHub:
 
-Клонировать репозиторий и перейти в него в командной строке:
+    ```bash
+    cd frontend
+    docker build -t username/kittygram_frontend .
+    cd ../backend
+    docker build -t username/kittygram_backend .
+    cd ../nginx
+    docker build -t username/kittygram_gateway . 
+    ```
 
-```
-git clone https://github.com/Bobby228/kittygram_final.git 
-```
+2. Загрузите образы на DockerHub:
 
-Перейти в корневую директорию
-```
-cd kittygram_final
-```
+    ```bash
+    docker push username/kittygram_frontend
+    docker push username/kittygram_backend
+    docker push username/kittygram_gateway
+    ```
+  
+### Деплой на удалённый сервере
 
-Создать файл .evn для хранения ключей:
+1. Подключитесь к удаленному серверу
 
-```
-SECRET_KEY='указать секретный ключ'
-ALLOWED_HOSTS='указать имя или IP хоста'
-POSTGRES_DB=kittygram
-POSTGRES_USER=kittygram_user
-POSTGRES_PASSWORD=kittygram_password
-DB_NAME=kittygram
-DB_HOST=db
-DB_PORT=5432
-DEBUG=False
-```
+    ```bash
+    ssh -i путь_до_файла_с_SSH_ключом/название_файла_с_SSH_ключом имя_пользователя@ip_адрес_сервера 
+    ```
 
-Запустить docker-compose.production:
+2. Создайте на сервере директорию kittygram через терминал
 
-```
-docker compose -f docker-compose.production.yml up
-```
+    ```bash
+    mkdir kittygram
+    ```
 
-Выполнить миграции, сбор статики:
+3. Установка docker compose на сервер:
 
-```
-docker compose -f docker-compose.production.yml exec backend python manage.py migrate
-docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
-docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /static/static/
+    ```bash
+    sudo apt update
+    sudo apt install curl
+    curl -fSL https://get.docker.com -o get-docker.sh
+    sudo sh ./get-docker.sh
+    sudo apt-get install docker-compose-plugin
+    ```
 
-```
+4. В директорию kittygram/ скопируйте файлы docker-compose.production.yml и .env:
 
-Создать суперпользователя, ввести почту, логин, пароль:
+    ```bash
+    scp -i path_to_SSH/SSH_name docker-compose.production.yml username@server_ip:/home/username/kittygram/docker-compose.production.yml
+    ```
 
-```
-docker compose -f docker-compose.production.yml exec backend python manage.py createsuperuser
-```
+5. Запустите docker compose в режиме демона:
 
-#  Как работать с репозиторием финального задания
+    ```bash
+    sudo docker compose -f docker-compose.production.yml up -d
+    ```
 
-## Что нужно сделать
+6. Выполните миграции, соберите статику бэкенда и скопируйте их в /backend_static/static/:
 
-Настроить запуск проекта Kittygram в контейнерах и CI/CD с помощью GitHub Actions
+    ```bash
+    sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
+    sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
+    sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /backend_static/static/
+    ```
 
-## Как проверить работу с помощью автотестов
+7. На сервере в редакторе nano откройте конфиг Nginx:
 
-В корне репозитория создайте файл tests.yml со следующим содержимым:
-```yaml
-repo_owner: ваш_логин_на_гитхабе
-kittygram_domain: полная ссылка (https://доменное_имя) на ваш проект Kittygram
-taski_domain: полная ссылка (https://доменное_имя) на ваш проект Taski
-dockerhub_username: ваш_логин_на_докерхабе
-```
+    ```bash
+    sudo nano /etc/nginx/sites-enabled/default
+   
+    ```
 
-Скопируйте содержимое файла `.github/workflows/main.yml` в файл `kittygram_workflow.yml` в корневой директории проекта.
+8. Добавте настройки location в секции server:
 
-Для локального запуска тестов создайте виртуальное окружение, установите в него зависимости из backend/requirements.txt и запустите в корневой директории проекта `pytest`.
+    ```bash
+    location / {
+        proxy_set_header Host $http_host;
+        proxy_pass http://127.0.0.1:9000;
+    }
+    ```
 
-## Чек-лист для проверки перед отправкой задания
+9. Проверьте работоспособность конфигураций и перезапустите Nginx:
 
-- Проект Taski доступен по доменному имени, указанному в `tests.yml`.
-- Проект Kittygram доступен по доменному имени, указанному в `tests.yml`.
-- Пуш в ветку main запускает тестирование и деплой Kittygram, а после успешного деплоя вам приходит сообщение в телеграм.
-- В корне проекта есть файл `kittygram_workflow.yml`.
+    ```bash
+    sudo nginx -t 
+    sudo service nginx reload
+    ```
+ 
+ 
+###  Cсылк на развёрнутое приложение: 
+ 
+- #### https://kittiesgram.sytes.net/ 
+ 
+ 
+### Технологии и необходимые ниструменты: 
+- Docker
+- Postgres
+- Python 3.x 
+- Node.js 9.x.x 
+- Git 
+- Nginx 
+- Gunicorn 
+- Django (backend) 
+- React (frontend) 
+ 
+ 
+### Автор 
+ 
+- Максим Бобров - [GitHub](https://github.com/Bobby228)
