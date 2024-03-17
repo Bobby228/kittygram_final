@@ -12,14 +12,14 @@
 • djoser==2.1.0
 
 ## Автор
-[@olees-orlenko](https://github.com/olees-orlenko)
+[@Bobby228](https://github.com/Bobby228)
 
 ### Как запустить проект:
 
 Клонировать репозиторий и перейти в него в командной строке:
 
 ```
-git clone https://github.com/olees-orlenko/kittygram_final.git 
+git clone https://github.com/Bobby228/kittygram_final.git 
 ```
 
 Перейти в корневую директорию
